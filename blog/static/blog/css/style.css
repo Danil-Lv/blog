@@ -1,0 +1,11 @@
+.wrapper {
+    max-width:800px;
+    margin:0 auto;
+
+}
+
+.paginator_wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center
+    }

@@ -1,0 +1,45 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<!-- Start Post -->
+{% for post in object_list %}
+  {% include "blog/post_item.html" with post=post %}
+{% endfor %}
+
+<!-- End Post -->
+
+
+<!-- Start Paginator -->
+{% if page_obj.has_other_pages %}
+
+<div class="paginator_wrapper">
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{page_obj.number|add:-1}}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% endif %}
+    {% for p in page_obj.paginator.page_range %}
+        <li class="page-item"><a class="page-link" href="?page={{p}}">{{ p }}</a></li>
+        {% endfor %}
+    {% if page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{page_obj.number|add:+1}}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+</div>
+{% endif %}
+
+<!-- End Paginator -->
+
+{% endblock %}

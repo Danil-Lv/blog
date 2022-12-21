@@ -1,0 +1,67 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <h1>{{ author.username }}</h1>
+    {% if not is_followed and not author.username == user.username %}
+    <a class="btn btn-primary" href="{% url 'follow' author.username %}">Подписаться</a>
+    {% elif is_followed and not author.username == user.username%}
+    <a class="btn btn-primary" href="{% url 'unfollow' author.username %}">Отписаться</a>
+    {% endif %}
+
+
+    <p>Подписчики: {{ followers.count }}</p>
+    <p>Подписок: {{ following.count }}</p>
+    {% if user == author %}
+    <p>Email: {{ author.email }}</p>
+    {% endif %}
+    {% if remove %}
+    <div class="alert alert-primary" role="alert">
+    Post is removed
+    </div>
+    {% endif  %}
+    {% if update %}
+    <form id="update_form" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">Title</label>
+        {{ form.title }}
+        </div>
+        <div class="mb-3">
+        <label for="exampleFormControlTextarea1" class="form-label">Text</label>
+            {{ form.text }}
+    </form>
+    <button form="update_form" type="submit" class="btn btn-primary mt-4">Обновить</button>
+
+    </div>
+    {% else %}
+    {% if user == author %}
+        <h2>Постов: {{ object_list.count }}</h2>
+        {% else %}
+        <h2>Постов: {{ object_list.count }}</h2>
+        {% endif %}
+        {% for post in object_list %}
+          {% include "blog/post_item.html" with post=post %}
+        {% endfor %}
+        {% endif %}
+
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{page_obj.number|add:-1}}">Previous</a></li>
+        {% endif %}
+        {% for p in page_obj.paginator.page_range %}
+        <li class="page-item"><a class="page-link" href="?page={{p}}">{{ p }}</a></li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{page_obj.number|add:1}}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+
+</div>
+{% endblock %}
