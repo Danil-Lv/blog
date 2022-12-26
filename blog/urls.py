@@ -14,7 +14,8 @@ urlpatterns = [
     path('profile/<str:username>/update/<slug:slug>', UpdatePostView.as_view(), name='update_post'),
     path('remove/<str:username>/<slug:slug>', remove_post, name='remove_post'),
     path('add_comment/<slug:slug>', AddComment.as_view(), name='add_comment'),
-    path("follow/<str:username>/", following, name="follow"),
-    path("unfollow/<str:username>/", unfollowing, name="unfollow"),
+    path('follow/<str:username>/', following, name='follow'),
+    path('unfollow/<str:username>/', unfollowing, name='unfollow'),
+    path('<str:category>/', ShowPostsList.as_view(), name='category' )
 ]
 

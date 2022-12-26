@@ -3,6 +3,7 @@
 {% block content %}
 
 <div class="container">
+    {% if not update %}
     <h1>{{ author.username }}</h1>
     {% if not is_followed and not author.username == user.username %}
     <a class="btn btn-primary" href="{% url 'follow' author.username %}">Подписаться</a>
@@ -16,11 +17,13 @@
     {% if user == author %}
     <p>Email: {{ author.email }}</p>
     {% endif %}
+
     {% if remove %}
     <div class="alert alert-primary" role="alert">
     Post is removed
     </div>
     {% endif  %}
+    {% endif %}
     {% if update %}
     <form id="update_form" method="post">
         {% csrf_token %}

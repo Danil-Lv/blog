@@ -2,9 +2,8 @@ from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from .models import *
 from .forms import *
-from django.views.generic import CreateView, ListView, DetailView, UpdateView, View
+from django.views.generic import CreateView, ListView, DetailView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.http import HttpResponse
@@ -19,7 +18,6 @@ class NewPost(LoginRequiredMixin, CreateView):
         form.instance.author = self.request.user
         form.save()
         return super(NewPost, self).form_valid(form)
-
 
 class AddComment(LoginRequiredMixin, CreateView):
     model = Comment
@@ -41,10 +39,8 @@ class AddComment(LoginRequiredMixin, CreateView):
         return super().get_success_url()
 
 
-class BestAuthorPost(LoginRequiredMixin, ListView):
-    pass
-
-
+# class BestAuthorPost(LoginRequiredMixin, ListView):
+#     pass
 
 
 # class Following(LoginRequiredMixin, CreateView):
@@ -58,12 +54,20 @@ class BestAuthorPost(LoginRequiredMixin, ListView):
 #         Follow.objects.create(user=self.request.user, author=author)
 #         return super(Following, self).post(request)
 
-
-
 class ShowPostsList(ListView):
     paginate_by = 10
     model = Post
     template_name = 'blog/index.html'
+
+
+    def get_queryset(self):
+        if 'category' in self.kwargs.keys():
+            category = Category.objects.get(slug=self.kwargs['category'])
+            queryset = Post.objects.filter(category=category)
+            self.queryset = queryset
+            return super().get_queryset()
+        else:
+            return super().get_queryset()
 
 
 class RegisterUser(CreateView):
@@ -97,12 +101,14 @@ class PostDetail(DetailView):
     def get_context_data(self, **kwargs):
         comments = Comment.objects.filter(post=kwargs['object'])
         kwargs['form'] = CommentForm
-        kwargs['comments'] = comments
+        kwargs['comments'] = comments.order_by('-id')
         return super().get_context_data(**kwargs)
 
 
 def following(request, username):
     author = User.objects.get(username=username)
+    if not request.user.id:
+        return redirect('login')
     if Follow.objects.filter(user=request.user, author=author):
         return redirect(reverse_lazy('profile', args=(username, )))
     elif author == request.user:
@@ -124,16 +130,17 @@ class ShowProfileView(ListView):
     login_url = 'login'
 
     def get_context_data(self, **kwargs):
-        user = User.objects.get(username=self.kwargs['username'])
+        # user = User.objects.get(username=self.kwargs['username'])
         author = User.objects.get(username=self.kwargs['username'])
         kwargs['user'] = self.request.user
         kwargs['author'] = author
         kwargs['followers'] = author.follower.all()
         kwargs['following'] = author.following.all()
-        if Follow.objects.filter(user=self.request.user, author=author):
-            kwargs['is_followed'] = True
-        else:
-            kwargs['is_followed'] = False
+        if self.request.user.id:
+            if Follow.objects.filter(user=self.request.user, author=author):
+                kwargs['is_followed'] = True
+            else:
+                kwargs['is_followed'] = False
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
@@ -142,7 +149,7 @@ class ShowProfileView(ListView):
         return super().get_queryset()
 
 
-class UpdatePostView(LoginRequiredMixin, UpdateView):
+class UpdatePostView(UpdateView):
     model = Post
     template_name = 'blog/profile.html'
     form_class = NewPostForm

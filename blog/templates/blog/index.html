@@ -5,6 +5,7 @@
 
 
 <!-- Start Post -->
+<h3>Постов: {{object_list.count}}</h3>
 {% for post in object_list %}
   {% include "blog/post_item.html" with post=post %}
 {% endfor %}

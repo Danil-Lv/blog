@@ -1,9 +1,10 @@
 
 
-<div class="card mb-4">
+<div class="card mb-4" >
 
   <div class="card-body" style="height: 3rem;">
-      <p class="card-text"><a href="{% url 'profile' post.author  %}">{{ post.author }}</a> {{ post.date_post }}</p>
+      <p class="card-text"><a href="{% url 'profile' post.author  %}">{{ post.author }}</a> {{ post.date_post }} {{ post.category }}</p>
+
   </div>
     {% load thumbnail %}
     {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
@@ -15,7 +16,11 @@
     <div class="card-body">
         <p class="card-title fs-4">{{ post.title }}</p>
         <p class="card-text">{{ post.text|truncatewords:50 }}</p>
-        <a class="btn btn-light" href="{{ post.get_absolute_url }}" role="button">Read</a>
+        <a class="btn btn-dark" href="{{ post.get_absolute_url }}" role="button">Read</a>
+        {% if post.author == user  %}
+        <a class="btn btn-danger" href="{% url 'remove_post' user.username post.slug %}" role="button">Delete</a>
+        <a class="btn btn-info" href="{% url 'update_post' user.username post.slug %}" role="button">Edit</a>
+        {% endif %}
     </div>
 </div>
 
