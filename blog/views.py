@@ -39,40 +39,16 @@ class AddComment(LoginRequiredMixin, CreateView):
         return super().get_success_url()
 
 
-# class BestAuthorPost(LoginRequiredMixin, ListView):
-#     pass
-
-
-# class Following(LoginRequiredMixin, CreateView):
-#     model = Follow
-#     login_url = 'login'
-#     form_class = FollowingForm
-#     success_url = 'index'
-#
-#     def post(self, request, *args, **kwargs):
-#         author = User.objects.get(username=self.kwargs['username'])
-#         Follow.objects.create(user=self.request.user, author=author)
-#         return super(Following, self).post(request)
-
 class ShowPostsList(ListView):
     paginate_by = 10
     model = Post
     template_name = 'blog/index.html'
 
 
-    def get_queryset(self):
-        if 'category' in self.kwargs.keys():
-            category = Category.objects.get(slug=self.kwargs['category'])
-            queryset = Post.objects.filter(category=category)
-            self.queryset = queryset
-            return super().get_queryset()
-        else:
-            return super().get_queryset()
-
 
 class RegisterUser(CreateView):
     form_class = UserRegisterForm
-    success_url = 'register'
+    success_url = 'profile'
     template_name = 'blog/register.html'
 
 

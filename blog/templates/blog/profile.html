@@ -2,9 +2,11 @@
 
 {% block content %}
 
+
 <div class="container">
     {% if not update %}
     <h1>{{ author.username }}</h1>
+<!--    <p>На форуме с {{ author.date_joined|date:'d.b.Y' }}</p>-->
     {% if not is_followed and not author.username == user.username %}
     <a class="btn btn-primary" href="{% url 'follow' author.username %}">Подписаться</a>
     {% elif is_followed and not author.username == user.username%}
@@ -15,7 +17,7 @@
     <p>Подписчики: {{ followers.count }}</p>
     <p>Подписок: {{ following.count }}</p>
     {% if user == author %}
-    <p>Email: {{ author.email }}</p>
+    <p>Email: {{ user.email }}</p>
     {% endif %}
 
     {% if remove %}
