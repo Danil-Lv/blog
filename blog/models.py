@@ -12,6 +12,7 @@ User = get_user_model()
 
 
 class Category(models.Model):
+    """Категория"""
     title = models.CharField(max_length=50, db_index=True, verbose_name='Название категории')
     slug = models.SlugField(unique=True)
 
@@ -24,6 +25,7 @@ class Category(models.Model):
 
 
 class Post(models.Model):
+    """Пост"""
     title = models.CharField(max_length=150, verbose_name='Заголовок')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts', verbose_name='Автор')
     date_post = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации')
@@ -54,6 +56,7 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
+    """Комментарий"""
     author = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='comments', null=True,
                                verbose_name='Автор')
     text = models.TextField(verbose_name='Комментарий')
@@ -68,6 +71,7 @@ class Comment(models.Model):
 
 
 class Follow(models.Model):
+    """Подписка"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following', null=True,
                              verbose_name='Подписчик', help_text='Кто подписался')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follower', null=True, verbose_name='Автор',

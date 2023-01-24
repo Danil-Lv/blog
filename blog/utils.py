@@ -1,11 +1,11 @@
 from string import ascii_lowercase
 from django.utils.text import slugify
 
-from datetime import date, time
+from datetime import datetime
 
 
 def get_slug(url):
-    return slugify(rus_to_eng(url)) + f'-{int(time())}'
+    return slugify(rus_to_eng(url)) + f'-{int(datetime.timestamp(datetime.today()))}'
 def rus_to_eng(word):
     letters = {
         'а': 'a',

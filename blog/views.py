@@ -2,14 +2,15 @@ from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from .forms import *
 from django.views.generic import CreateView, ListView, DetailView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 from django.http import HttpResponse
+
+from .forms import *
 
 
 class NewPost(LoginRequiredMixin, CreateView):
+    """Создание поста"""
     form_class = NewPostForm
     template_name = 'blog/new_post.html'
     login_url = 'login'
@@ -19,7 +20,9 @@ class NewPost(LoginRequiredMixin, CreateView):
         form.save()
         return super(NewPost, self).form_valid(form)
 
+
 class AddComment(LoginRequiredMixin, CreateView):
+    """Добавление комментариев"""
     model = Comment
     form_class = CommentForm
     success_url = 'index'
@@ -40,22 +43,28 @@ class AddComment(LoginRequiredMixin, CreateView):
 
 
 class ShowPostsList(ListView):
+    """Отображение постов"""
     paginate_by = 10
     model = Post
     template_name = 'blog/index.html'
 
 
-
 class RegisterUser(CreateView):
+    """Регистрация пользователя"""
     form_class = UserRegisterForm
-    success_url = 'profile'
     template_name = 'blog/register.html'
+
+    def get_success_url(self):
+        url = self.request.GET.get('next')
+        if url:
+            return url
+        return reverse_lazy('login')
 
 
 class LoginUser(LoginView):
+    """Авторизация пользователя"""
     form_class = UserLoginForm
     template_name = 'blog/login.html'
-    success_url = 'index'
 
     def get_success_url(self):
         url = self.request.GET.get('next')
@@ -65,11 +74,13 @@ class LoginUser(LoginView):
 
 
 def logout_user(request):
+    """Выход из аккаунта"""
     logout(request)
     return redirect('index')
 
 
 class PostDetail(DetailView):
+    """Вывод поста"""
     model = Post
     template_name = 'blog/post_single.html'
     slug_url_kwarg = 'url'
@@ -82,31 +93,33 @@ class PostDetail(DetailView):
 
 
 def following(request, username):
+    """Подписка на пользователя"""
     author = User.objects.get(username=username)
     if not request.user.id:
         return redirect('login')
     if Follow.objects.filter(user=request.user, author=author):
-        return redirect(reverse_lazy('profile', args=(username, )))
+        return redirect(reverse_lazy('profile', args=(username,)))
     elif author == request.user:
-        return redirect(reverse_lazy('profile', args=(username, )))
+        return redirect(reverse_lazy('profile', args=(username,)))
     Follow.objects.create(user=request.user, author=author)
 
-    return redirect(reverse_lazy('profile', args=(username, )))
+    return redirect(reverse_lazy('profile', args=(username,)))
 
 
 def unfollowing(request, username):
+    """Отписка от пользователя"""
     author = User.objects.get(username=username)
     Follow.objects.filter(user=request.user, author=author).delete()
     return redirect(reverse_lazy('profile', args=(username,)))
 
 
 class ShowProfileView(ListView):
+    """Вывод профиля"""
     paginate_by = 10
     template_name = 'blog/profile.html'
     login_url = 'login'
 
     def get_context_data(self, **kwargs):
-        # user = User.objects.get(username=self.kwargs['username'])
         author = User.objects.get(username=self.kwargs['username'])
         kwargs['user'] = self.request.user
         kwargs['author'] = author
@@ -126,6 +139,7 @@ class ShowProfileView(ListView):
 
 
 class UpdatePostView(UpdateView):
+    """Обновление поста"""
     model = Post
     template_name = 'blog/profile.html'
     form_class = NewPostForm
@@ -141,14 +155,14 @@ class UpdatePostView(UpdateView):
 
     def get(self, request, *args, **kwargs):
         if self.request.user.username != self.kwargs['username']:
-            return redirect(reverse('post', args=(self.kwargs['slug'], )))
+            return redirect(reverse('post', args=(self.kwargs['slug'],)))
         else:
             return super(UpdatePostView, self).get(request)
 
 
-
 def remove_post(request, slug, username):
+    """Удаление поста"""
     if request.user.username == username:
         Post.objects.get(slug=slug).delete()
-        return redirect(reverse('profile', args=(username, )))
+        return redirect(reverse('profile', args=(username,)))
     return HttpResponse('Error')
